@@ -23,41 +23,6 @@
     }
   },
   "Resources": {
-    "ApiGatewayAccount": {
-      "Type": "AWS::ApiGateway::Account",
-      "Condition": "IsProduction",
-      "Properties": {
-        "CloudWatchRoleArn": {
-          "Fn::GetAtt": [
-            "ApiGatewayAccountRole",
-            "Arn"
-          ]
-        }
-      }
-    },
-    "ApiGatewayAccountRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "apigateway.amazonaws.com"
-                ]
-              },
-              "Action": "sts:AssumeRole"
-            }
-          ]
-        },
-        "Path": "/",
-        "ManagedPolicyArns": [
-          "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
-        ]
-      }
-    },
     "CodeBucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
