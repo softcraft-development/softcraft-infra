@@ -1,0 +1,93 @@
+{
+  "Conditions": {
+    "IsProduction": {
+      "Fn::Equals": [
+        {
+          "Ref": "Environment"
+        },
+        "production"
+      ]
+    }
+  },
+  "Mappings": {},
+  "Parameters": {
+    "Environment": {
+      "AllowedPattern": "[a-z0-9-]+",
+      "ConstraintDescription": "Lower case letters, numbers, hyphen.",
+      "Default": "default",
+      "Type": "String"
+    },
+    "ForceUpdate": {
+      "Default": "false",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "ApiGatewayAccount": {
+      "Type": "AWS::ApiGateway::Account",
+      "Condition": "IsProduction",
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "ApiGatewayAccountRole",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "ApiGatewayAccountRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "apigateway.amazonaws.com"
+                ]
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+        ]
+      }
+    },
+    "CodeBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": {
+          "Fn::Join": [
+            "-",
+            [
+              "softcraft-code",
+              {
+                "Ref": "Environment"
+              }
+            ]
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "Environment"
+            }
+          },
+          {
+            "Key": "ForcedUpdate",
+            "Value": {
+              "Ref": "ForceUpdate"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {}
+}
